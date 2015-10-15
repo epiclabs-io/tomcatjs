@@ -1,4 +1,4 @@
-//Tomcatjs tomcat manager library
+//Tomcatjs Tomcat Manager interface library
 // by Javier Peletier <jm@epiclabs.io>
 // Inspired by node-tomcat-manager Tomasz Borychowski https://github.com/tborychowski
 
@@ -9,7 +9,7 @@
 import http = require("http");
 import Q = require("q");
 
-export module tomcatjs {
+
 
 	interface UrlConfig {
 		hostname: string;
@@ -17,10 +17,6 @@ export module tomcatjs {
 		path: string;
 		headers: { [headerName: string]: string };
 
-	}
-
-	export interface Callback {
-		(err: any, data: any): void;
 	}
 
 	export class Manager {
@@ -38,22 +34,27 @@ export module tomcatjs {
 			};
 		}
 
-		private tomcatGet(path: string, cb: Callback) {
+		private tomcatGet(path: string): Q.IPromise<string> {
 			var resp: string = '';
+			var defer = Q.defer<string>();
 
 			this.urlCfg.path = '/manager/text/' + path;
 			var request = http.request(this.urlCfg, function(res: http.IncomingMessage) {
-				res.on('data', function(chunk) { resp += chunk; });
-				res.on('end', function() { cb(null, resp); });
+				res.on('data', function(chunk) {
+					resp += chunk;
+				});
+				res.on('end', function() {
+					defer.resolve(resp);
+				});
 			});
 
 			request.on('error', function(e) {
-				cb(e, null);
+				defer.reject(e);
 			});
 
 			request.end();
 
-
+			return defer.promise;
 		}
 
 		private fuzzyCompare(st1: string, st2: string) {
@@ -77,11 +78,7 @@ export module tomcatjs {
 			var defer = Q.defer<string[]>();
 
 			var appList: string[] = [];
-			this.tomcatGet("list", function(err: any, data: string) {
-				if (err != null) {
-					defer.reject(err);
-					return;
-				}
+			this.tomcatGet("list").then(function(data: string) {
 
 				data.split("\n").forEach(function(line: string) {
 					if (line.indexOf('OK - Listed applications') === 0)
@@ -92,9 +89,10 @@ export module tomcatjs {
 					var st = line.split(':');
 					if (self.ignoredApps.indexOf(st[3]) > -1) return;
 
-					//apps.push([st[3], st[1], st[2]]);
 					appList.push(st[3]);
 
+				}, function(err) {
+					defer.reject(err);
 				})
 
 				defer.resolve(appList);
@@ -103,6 +101,25 @@ export module tomcatjs {
 			return defer.promise;
 		}
 
+		public undeploy(applicationName: string): Q.IPromise<string> {
+			var defer = Q.defer<string>();
+
+			this.tomcatGet("undeploy?path=/" + applicationName).then(function(data: string) {
+				if (data.length >= 4 && data.substr(0, 4) == "FAIL") {
+					defer.reject(data);
+					return;
+				}
+
+				defer.resolve(applicationName);
+
+			}, function(err) {
+					defer.reject(err);
+				});
+
+
+			return defer.promise;
+		}
+
 	}
-}
+
 
