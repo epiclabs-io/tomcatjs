@@ -1,0 +1,25 @@
+{
+  "//": [
+    "Warning! This is the build environment package.json file, ",
+    "not the package.json file that will be part of your project",
+    " Do not modify this file unless you want to modify your",
+    "build environment!!"
+  ],
+  "name": "nodets-template",
+  "version": "0.1.0",
+  "description": "Node.js TypeScript build environment",
+  "main": "",
+  "author": {
+    "name": "Javier Peletier",
+    "email": "jm@friendev.com"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-tsc": "^1.0.0",
+    "merge-stream": "^0.1.8",
+    "shelljs": "^0.5.1"
+  },
+  "dependencies": {
+    "dts-bundle": "^0.2.0"
+  }
+}
