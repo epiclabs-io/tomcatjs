@@ -4,7 +4,10 @@
 
 
 /// <reference path="typings/node/node.d.ts" />
+/// <reference path="typings/q/Q.d.ts" />
+
 import http = require("http");
+import Q = require("q");
 
 export module tomcatjs {
 
@@ -23,7 +26,7 @@ export module tomcatjs {
 	export class Manager {
 
 		private urlCfg: UrlConfig = null;
-		public ignoredApps:string[] = [ 'ROOT', 'manager', 'docs', 'examples', 'host-manager' ];
+		public ignoredApps: string[] = ['ROOT', 'manager', 'docs', 'examples', 'host-manager'];
 
 		constructor(tomcatHostname: string, tomcatPort: number, tomcatUsername: string, tomcatPassword: string) {
 
@@ -69,12 +72,14 @@ export module tomcatjs {
 
 		}
 
-		public getApps(cb: Callback) {
-			var self=this;
-			var appList:string[] = [];
+		public getApps(): Q.IPromise<string[]> {
+			var self = this;
+			var defer = Q.defer<string[]>();
+
+			var appList: string[] = [];
 			this.tomcatGet("list", function(err: any, data: string) {
 				if (err != null) {
-					cb(err, null);
+					defer.reject(err);
 					return;
 				}
 
@@ -91,13 +96,11 @@ export module tomcatjs {
 					appList.push(st[3]);
 
 				})
-				
-				cb(null,appList);
 
-
-
+				defer.resolve(appList);
 			})
 
+			return defer.promise;
 		}
 
 	}

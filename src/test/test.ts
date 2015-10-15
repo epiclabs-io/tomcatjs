@@ -7,7 +7,7 @@ var port:number = 8080;
 
 var manager = new tman.tomcatjs.Manager(hostName,port,userName,password);
 
-manager.getApps(function(err,list:string[])
+manager.getApps().then(function(list:string[])
 {
 	list.forEach(function(st:string)
 	{
