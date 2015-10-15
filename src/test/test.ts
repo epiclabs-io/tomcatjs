@@ -1,11 +1,20 @@
 import tman = require("../index");
 
-var hostName:string = ""
-var userName:string ="";
-var password:string="";
+var hostName:string = "localhost"
+var userName:string ="manager";
+var password:string="manager";
+var port:number = 8080;
 
-var manager = new tman.tomcatjs.Manager(hostName,80,userName,password);
+var manager = new tman.tomcatjs.Manager(hostName,port,userName,password);
 
-manager.getApps();
+manager.getApps(function(err,list:string[])
+{
+	list.forEach(function(st:string)
+	{
+		console.log(st);
+	})
+	
+	
+});
 
 

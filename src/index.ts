@@ -1,5 +1,7 @@
-// Original code by Tomasz Borychowski https://github.com/tborychowski
-// Converted to nodejs module by Javier Peletier <jm@friendev.com>
+//Tomcatjs tomcat manager library
+// by Javier Peletier <jm@epiclabs.io>
+// Inspired by node-tomcat-manager Tomasz Borychowski https://github.com/tborychowski
+
 
 /// <reference path="typings/node/node.d.ts" />
 import http = require("http");
@@ -14,21 +16,16 @@ export module tomcatjs {
 
 	}
 
-	interface Callback {
+	export interface Callback {
 		(err: any, data: any): void;
 	}
 
 	export class Manager {
 
 		private urlCfg: UrlConfig = null;
-		private tomcatHostname: string;
-		private tomcatPassword: string;
-		private tomcatUsername: string;
+		public ignoredApps:string[] = [ 'ROOT', 'manager', 'docs', 'examples', 'host-manager' ];
 
 		constructor(tomcatHostname: string, tomcatPort: number, tomcatUsername: string, tomcatPassword: string) {
-			this.tomcatPassword = tomcatPassword;
-			this.tomcatHostname = tomcatHostname;
-			this.tomcatUsername = tomcatUsername;
 
 			this.urlCfg = {
 				hostname: tomcatHostname,
@@ -46,20 +43,57 @@ export module tomcatjs {
 				res.on('data', function(chunk) { resp += chunk; });
 				res.on('end', function() { cb(null, resp); });
 			});
-			
+
 			request.on('error', function(e) {
 				cb(e, null);
 			});
-			
+
 			request.end();
-			
+
 
 		}
 
-		public getApps() {
-			this.tomcatGet("list", function(err: any, data: any) {
-				console.log(data);
-				console.log("error=" + err);
+		private fuzzyCompare(st1: string, st2: string) {
+
+			var hay: string = st1.toLowerCase();
+			var i: number = 0;
+			var n: number = -1;
+			var l: string;
+			var s: string = st2.toLowerCase();
+
+			for (; l = s[i++];)
+				if (!~(n = hay.indexOf(l, n + 1)))
+					return false;
+
+			return true;
+
+		}
+
+		public getApps(cb: Callback) {
+			var self=this;
+			var appList:string[] = [];
+			this.tomcatGet("list", function(err: any, data: string) {
+				if (err != null) {
+					cb(err, null);
+					return;
+				}
+
+				data.split("\n").forEach(function(line: string) {
+					if (line.indexOf('OK - Listed applications') === 0)
+						return;
+					line = line.trim();
+					if (!line.length)
+						return;
+					var st = line.split(':');
+					if (self.ignoredApps.indexOf(st[3]) > -1) return;
+
+					//apps.push([st[3], st[1], st[2]]);
+					appList.push(st[3]);
+
+				})
+				
+				cb(null,appList);
+
 
 
 			})
