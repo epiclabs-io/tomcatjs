@@ -1,6 +1,6 @@
 {
   "name": "tomcatjs",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Nodejs library to interface with tomcat7",
   "main": "index.js",
   "scripts": {
@@ -12,8 +12,12 @@
     "manager"
   ],
   "author": "Javier Peletier",
-  "license": "ISC",
+  "license": "GPL",
   "dependencies": {
     "q": "^1.4.1"
+  },
+  "repository": {
+   "type":"git",
+   "url":"https://github.com/epiclabs-io/tomcatjs.git" 
   }
 }

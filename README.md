@@ -3,6 +3,7 @@ tomcatjs
 nodejs-based Tomcat Manager client library
 
 tomcatjs is a simple library that interfaces with Tomcat Manager to allow programmatic access to its API via Nodejs JavaScript.
+Tested only with Tomcat7
 
 Install
 -------
