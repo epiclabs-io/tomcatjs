@@ -46,6 +46,29 @@ manager.undeploy("appNameToUndeploy").then(function(applicationName) {
 
 ```
 
+Building
+--------
+
+tomcatjs is developed in TypeScript, which compiles to JavaScript to be able to publish it as a npm module. In order to build tomcatjs, clone the repository and then install the following global dependencies:
+
+```bash
+npm install gulp -g
+npm install typescript -g
+npm install tsd -g
+```
+Once you have the above, execute in the repository folder:
+
+```bash
+npm install
+```
+... which will install all the development dependencies. To build the project:
+
+```bash
+gulp build
+```
+
+This will output the JavaScript npm package to the ./dist folder
+
 License
 -------
 GPL
